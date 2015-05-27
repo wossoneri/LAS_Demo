@@ -1,5 +1,9 @@
 package com.example.las_demo;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,16 +19,20 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class FloatButtonService extends Service {
 
 	// 定义浮动窗口布局
-	LinearLayout mFloatLayout;
-	WindowManager.LayoutParams wmParams;
+	LinearLayout				mFloatLayout;
+	WindowManager.LayoutParams	wmParams;
 	// 创建浮动窗口设置布局参数的对象
-	WindowManager mWindowManager;
-	Button mBtn;
+	WindowManager				mWindowManager;
+	Button						mBtn;
 
+	ActivityManager mActivityManager;
+	List<ActivityManager.RecentTaskInfo> mAppList = new ArrayList<ActivityManager.RecentTaskInfo>();
+	
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -119,16 +127,13 @@ public class FloatButtonService extends Service {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 
-				// mAppList = mActivityManager.getRecentTasks(3,
-				// ActivityManager.RECENT_IGNORE_UNAVAILABLE);//
-				// 最近使用过的app在list最前面
-				//
-				// ActivityManager.RecentTaskInfo info = mAppList.get(1);
-				// if (null == info)
-				// Toast.makeText(FxService.this, "No other apps",
-				// Toast.LENGTH_SHORT).show();
-				// else
-				// startActivity(info.baseIntent);
+				mAppList = mActivityManager.getRecentTasks(3, ActivityManager.RECENT_IGNORE_UNAVAILABLE);// 最近使用过的app在list最前面
+
+				ActivityManager.RecentTaskInfo info = mAppList.get(1);
+				if (null == info)
+					Toast.makeText(FloatButtonService.this, "No other apps", Toast.LENGTH_SHORT).show();
+				else
+					startActivity(info.baseIntent);
 			}
 		});
 	}

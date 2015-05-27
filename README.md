@@ -60,5 +60,59 @@ public void onDestroy() {
 
 
 
+
 ###将程序从最近任务中移除
-&emsp;&emsp;按下系统导航栏第三个按钮我们就可以看到最近使用过的任务列表，当然，LAS切换程序也是在这里选择最后使用的两个应用程序切换的
+&emsp;&emsp;按下系统导航栏第三个按钮我们就可以看到最近使用过的任务列表，当然，LAS切换程序也是在这里选择最后使用的两个应用程序切换的。所以在切换的时候，把自己的Activity从最近的任务中删掉是很必要的。
+前面提到过，就是在Activity的onPause()状态或者onStop()状态中执行finishAndRemoveTask()方法删除任务。但这个方法在API 21也就是Android 5.0才引入。不过，我们还有一个更方便的方法，就是在配置文件的`<activity>`标签中增加
+```xml
+android:excludeFromRecents="true"
+```
+这样不论你是按下back键还是home键，程序都会从最近使用过的任务列表中删除
+
+###任务间的切换 unfinished
+将自身Activity从最近任务列表中删除后，我们就可以考虑获取最后两次的任务，然后互相一键切换了。
+在浮动按钮的单击事件中添加
+```java
+mAppList = mActivityManager.getRecentTasks(3, ActivityManager.RECENT_IGNORE_UNAVAILABLE);// 最近使用过的app在list最前面
+
+ActivityManager.RecentTaskInfo info = mAppList.get(1);
+if (null == info)
+	Toast.makeText(FloatButtonService.this, "No other apps", Toast.LENGTH_SHORT).show();
+else
+	startActivity(info.baseIntent);
+```
+
+基本功能完成后就可以按照LAS的设置来一一添加其他功能
+
+
+###开机启动
+Android开机启动结束会发送一个BOOT_COMPLETED的广播，我们在程序中建立一个广播接收器来接收这个广播，接收成功就直接启动服务来显示浮动按钮即可。
+先建立一个广播接收器 BootReceiver
+```java
+public class BootReceiver extends BroadcastReceiver {
+
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {// on boot
+			Intent a = new Intent(context, FloatButtonService.class);
+			context.startService(a);
+		}
+	}
+}
+```
+在配置文件中，`<application>`标签下注册广播接收器
+```xml
+<receiver android:name=".BootReceiver" >
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</receiver>
+```
+然后增加权限
+```xml
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+```
+开机启动就完成。但怎么用开关来控制其是否开机启动？？？？？这是个问题。。。
