@@ -61,7 +61,7 @@ public void onDestroy() {
 
 
 
-###将程序从最近任务中移除
+###将程序从最近任务(last recent tasks)中移除
 &emsp;&emsp;按下系统导航栏第三个按钮我们就可以看到最近使用过的任务列表，当然，LAS切换程序也是在这里选择最后使用的两个应用程序切换的。所以在切换的时候，把自己的Activity从最近的任务中删掉是很必要的。
 前面提到过，就是在Activity的onPause()状态或者onStop()状态中执行finishAndRemoveTask()方法删除任务。但这个方法在API 21也就是Android 5.0才引入。不过，我们还有一个更方便的方法，就是在配置文件的`<activity>`标签中增加
 ```xml
@@ -115,4 +115,38 @@ public class BootReceiver extends BroadcastReceiver {
 ```xml
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 ```
-开机启动就完成。但怎么用开关来控制其是否开机启动？？？？？这是个问题。。。
+开机启动就完成了。但怎么用开关来控制其是否开机启动呢？
+
+###SharedPreferences
+&emsp;&emsp;用开关控制功能的开启状态，这个状态不能保存在程序中，因为程序是要被关闭的。那么就是要用一些方法保存开关的状态到系统中，然后服务从文件读取状态，控制自己的程序行为。Android中最适合保存配置状态的就是用SharedPreferences了。当我查看LAS应用的数据文件的时候，发现输出的结果的确是这样的。
+```bash
+cat /data/data/com.abhi.lastappswitcher/shared_prefs/com.inpen.lastAppSwitcher.APPLICATION_PREFS.xml
+```
+```xml
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+<boolean name="com.inpen.lastAppSwitcher.PREF_SNAP_TO_EDGE" value="true" />
+<int name="com.inpen.lastAppSwitcher.PREF_LAND_HEIGHT" value="800" />
+<int name="com.inpen.lastAppSwitcher.PREF_LAND_FLOATER_Y" value="485" />
+<int name="com.inpen.lastAppSwitcher.PREF_LAND_WIDTH" value="1280" />
+<int name="com.inpen.lastAppSwitcher.PREF_PORT_FLOATER_Y" value="776" />
+<int name="com.inpen.lastAppSwitcher.PREF_PORT_WIDTH" value="800" />
+<boolean name="com.inpen.lastAppSwitcher.PREF_ERROR_MSG" value="true" />
+<boolean name="com.inpen.lastAppSwitcher.PREF_STATUS_BAR_OVERLAY" value="false" />
+<int name="com.inpen.lastAppSwitcher.PREF_FLOATER_SIZE" value="55" />
+<int name="com.inpen.lastAppSwitcher.PREF_PORT_FLOATER_X" value="765" />
+<int name="com.inpen.lastAppSwitcher.PREF_PORT_HEIGHT" value="1280" />
+<int name="com.inpen.lastAppSwitcher.PREF_FLOATER_TRANSPARENCY" value="75" />
+<int name="currentQuote" value="6" />
+<int name="com.inpen.lastAppSwitcher.PREF_SWITCHING_METHOD" value="1" />
+<boolean name="com.inpen.lastAppSwitcher.PREF_FLOATER_MOVABLE" value="true" />
+<boolean name="com.inpen.lastAppSwitcher.PREF_HAPTIC_FEEDBACK" value="false" />
+<int name="com.inpen.lastAppSwitcher.PREF_FLOATER_COLOR" value="0" />
+</map>
+```
+那么，我们就开始写我们自己的sharedPreferences文件吧
+
+####悬浮按钮显示在status bar上方
+```java
+wmParams.flags =LayoutParams.FLAG_NOT_TOUCH_MODAL | LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+```

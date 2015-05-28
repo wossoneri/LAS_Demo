@@ -5,18 +5,31 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager.LayoutParams;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout;
+
+import com.example.helper.SizeHelper;
+import com.example.helper.StringKey;
+import com.example.style_button.CheckSwitchButton;
 
 public class MainActivity extends Activity {
 
-	private CheckSwitchButton mBtnFloatButton;
+	private SharedPreferences sp;
+	private CheckSwitchButton mBtnFloaterShow;
+	private CheckSwitchButton mBtnRunAtStartup;
+	private CheckSwitchButton mBtnStatusbarOverlay;
+	private CheckSwitchButton mBtnSnapToEdge;
+	private LinearLayout layout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,23 +37,58 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		getActionBar().hide();
-
+		initPreferences();
 		initView();
 		initEvent();
 
 	}
 
-	private void initView() {
-		mBtnFloatButton = (CheckSwitchButton) findViewById(R.id.btn_float_button);
+	private void initPreferences() {
+		sp = getSharedPreferences("las_demo", Context.MODE_PRIVATE);
 
-		if (isServiceRunning("com.example.las_demo.FloatButtonService"))
-			mBtnFloatButton.setChecked(true);
+		if (!sp.contains("las_demo")) { // check whether there exists
+										// las_demo.xml, if false, create one
+			Editor editor = sp.edit();
+//			editor.putBoolean(StringKey.FloaterShow, false);
+			editor.putBoolean(StringKey.RunAtStart, false);
+			editor.putBoolean(StringKey.SnapToEdge, true);
+			editor.putBoolean(StringKey.StatusBarOverlay, false);
+
+			editor.commit();
+		}
+	}
+
+	private void initView() {
+		
+		mBtnFloaterShow = (CheckSwitchButton) findViewById(R.id.btn_floater_show);
+		mBtnRunAtStartup = (CheckSwitchButton) findViewById(R.id.btn_run_at_startup);
+		mBtnStatusbarOverlay = (CheckSwitchButton) findViewById(R.id.btn_statusbar_overlay);
+		mBtnSnapToEdge = (CheckSwitchButton) findViewById(R.id.btn_snap_to_edge);
+
+//		 if (isServiceRunning("com.example.las_demo.FloatButtonService"))
+		if (sp.getBoolean(StringKey.FloaterShow, false))
+			mBtnFloaterShow.setChecked(true);
 		else
-			mBtnFloatButton.setChecked(false);
+			mBtnFloaterShow.setChecked(false);
+
+		if (sp.getBoolean(StringKey.RunAtStart, false))
+			mBtnRunAtStartup.setChecked(true);
+		else
+			mBtnRunAtStartup.setChecked(false);
+
+		if (sp.getBoolean(StringKey.SnapToEdge, false))
+			mBtnSnapToEdge.setChecked(true);
+		else
+			mBtnSnapToEdge.setChecked(false);
+
+		if (sp.getBoolean(StringKey.StatusBarOverlay, false))
+			mBtnStatusbarOverlay.setChecked(true);
+		else
+			mBtnStatusbarOverlay.setChecked(false);
 	}
 
 	private void initEvent() {
-		mBtnFloatButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		mBtnFloaterShow.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -48,33 +96,66 @@ public class MainActivity extends Activity {
 				if (isChecked) {
 					Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
 					startService(intent);
+					editBoolKey(StringKey.FloaterShow, true);
 				} else {
 					Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
 					stopService(intent);
+					editBoolKey(StringKey.FloaterShow, false);
 				}
+			}
+		});
+
+		mBtnRunAtStartup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked)
+					editBoolKey(StringKey.RunAtStart, true);
+				else
+					editBoolKey(StringKey.RunAtStart, false);
+
+			}
+		});
+		
+		mBtnStatusbarOverlay.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked)
+					editBoolKey(StringKey.StatusBarOverlay, true);
+				else
+					editBoolKey(StringKey.StatusBarOverlay, false);
+
+				Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
+				stopService(intent);
+				startService(intent);//restart the service when change the option
+			}
+		});
+		
+		mBtnSnapToEdge.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked)
+					editBoolKey(StringKey.SnapToEdge, true);
+				else
+					editBoolKey(StringKey.SnapToEdge, false);
+
 			}
 		});
 	}
 
-	// @Override
-	// protected void onPause() {
-	// // TODO Auto-generated method stub
-	// finishAndRemoveTask();
-	// super.onPause();
-	//
-	// }
-	//
-	// @Override
-	// public void onBackPressed() {
-	// // TODO Auto-generated method stub
-	// finishAndRemoveTask();
-	// super.onBackPressed();
-	//
-	// }
+	private void editBoolKey(String str, boolean b) {
+		Editor editor = sp.edit();
+		editor.putBoolean(str, b);
+		editor.apply();
+	}
 
 	private boolean isServiceRunning(String serviceClassName) {
-		final ActivityManager activityManager = (ActivityManager) this
-				.getSystemService(Context.ACTIVITY_SERVICE);
+		final ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
 		final List<RunningServiceInfo> services = activityManager.getRunningServices(40);
 
 		for (RunningServiceInfo runningServiceInfo : services) {
