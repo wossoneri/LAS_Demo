@@ -6,9 +6,9 @@
 
     <Button
         android:id="@+id/btn_Float"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="LAS"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/btn"
         android:textSize="24sp" />
 
 </LinearLayout>

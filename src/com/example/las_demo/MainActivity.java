@@ -31,12 +31,17 @@ public class MainActivity extends Activity {
 	private CheckSwitchButton mBtnSnapToEdge;
 	private LinearLayout layout;
 
+	private Intent intent;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		getActionBar().hide();
+		
+		SizeHelper.getScreenSize(this);
+		
 		initPreferences();
 		initView();
 		initEvent();
@@ -59,6 +64,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void initView() {
+		intent  = new Intent(MainActivity.this, FloatButtonService.class);
 		
 		mBtnFloaterShow = (CheckSwitchButton) findViewById(R.id.btn_floater_show);
 		mBtnRunAtStartup = (CheckSwitchButton) findViewById(R.id.btn_run_at_startup);
@@ -94,11 +100,9 @@ public class MainActivity extends Activity {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				// TODO Auto-generated method stub
 				if (isChecked) {
-					Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
 					startService(intent);
 					editBoolKey(StringKey.FloaterShow, true);
 				} else {
-					Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
 					stopService(intent);
 					editBoolKey(StringKey.FloaterShow, false);
 				}
@@ -128,7 +132,6 @@ public class MainActivity extends Activity {
 				else
 					editBoolKey(StringKey.StatusBarOverlay, false);
 
-				Intent intent = new Intent(MainActivity.this, FloatButtonService.class);
 				stopService(intent);
 				startService(intent);//restart the service when change the option
 			}
@@ -143,7 +146,8 @@ public class MainActivity extends Activity {
 					editBoolKey(StringKey.SnapToEdge, true);
 				else
 					editBoolKey(StringKey.SnapToEdge, false);
-
+				stopService(intent);
+				startService(intent);
 			}
 		});
 	}

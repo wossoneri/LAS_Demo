@@ -6,12 +6,18 @@ import android.graphics.Rect;
 import android.util.DisplayMetrics;
 
 public final class SizeHelper {
+	
+	public static int screen_width;
+	public static int screen_height;
 
 	public static final Point getScreenSize(Activity activity) {
 		Point p = new Point();
 		DisplayMetrics dm = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
+		screen_width = dm.widthPixels;
+		screen_height = dm.heightPixels;
+		
 		p.x = dm.widthPixels;
 		p.y = dm.heightPixels;
 		return p;

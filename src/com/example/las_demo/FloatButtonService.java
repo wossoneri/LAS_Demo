@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,16 +30,17 @@ import android.widget.Toast;
 public class FloatButtonService extends Service {
 
 	// 定义浮动窗口布局
-	LinearLayout				mFloatLayout;
-	WindowManager.LayoutParams	wmParams;
+	private LinearLayout				mFloatLayout;
+	private WindowManager.LayoutParams	wmParams;
 	// 创建浮动窗口设置布局参数的对象
-	WindowManager				mWindowManager;
-	Button						mBtn;
+	private WindowManager				mWindowManager;
+	private Button						mBtn;
 
-	ActivityManager mActivityManager;
-	List<ActivityManager.RecentTaskInfo> mAppList = new ArrayList<ActivityManager.RecentTaskInfo>();
+	private ActivityManager mActivityManager;
+	private List<ActivityManager.RecentTaskInfo> mAppList = new ArrayList<ActivityManager.RecentTaskInfo>();
 	
 	private SharedPreferences sp;
+	private boolean bSnapToEdge;
 	
 	@Override
 	public void onCreate() {
@@ -46,6 +48,8 @@ public class FloatButtonService extends Service {
 		super.onCreate();
 		
 		sp = getSharedPreferences("las_demo", Context.MODE_PRIVATE);
+		
+		bSnapToEdge = sp.getBoolean(StringKey.SnapToEdge, true);
 		createFloatView();
 	}
 
@@ -90,7 +94,7 @@ public class FloatButtonService extends Service {
 		
 		
 		// 调整悬浮窗显示的停靠位置为中间
-		wmParams.gravity = Gravity.CENTER;
+		wmParams.gravity = Gravity.START | Gravity.TOP;
 
 		// 以屏幕左上角为原点，设置x、y初始值
 		wmParams.x = 0;
@@ -118,17 +122,34 @@ public class FloatButtonService extends Service {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// TODO Auto-generated method stub
-				// getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
-				wmParams.x = (int) event.getRawX() - mBtn.getMeasuredWidth() / 2;
-				// Log.i(TAG, "Width/2--->" + mBtn.getMeasuredWidth()/2);
-				wmParams.y = (int) event.getRawY() - mBtn.getMeasuredHeight() / 2 - SizeHelper.getStatusHeight((Activity)getApplicationContext());
-				// Log.i(TAG, "Width/2--->" + mBtn.getMeasuredHeight()/2);
+
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_MOVE:
+					// getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
+					wmParams.x = (int) event.getRawX() - mBtn.getMeasuredWidth() / 2;
+					// Log.i(TAG, "Width/2--->" + mBtn.getMeasuredWidth()/2);
+					wmParams.y = (int) event.getRawY() - mBtn.getMeasuredHeight() / 2 - 25;
+					// Log.i(TAG, "Width/2--->" + mBtn.getMeasuredHeight()/2);
+					break;
+
+				case MotionEvent.ACTION_UP:
+					if (bSnapToEdge) {
+						if (wmParams.x > SizeHelper.screen_width / 2)
+							wmParams.x = 0;
+						else
+							wmParams.x = SizeHelper.screen_width;
+					}
+					break;
+				default:
+					break;
+				}
+
 				// 刷新
 				mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 				return false;
 			}
 		});
-
+/*
 		mBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -137,12 +158,15 @@ public class FloatButtonService extends Service {
 
 				mAppList = mActivityManager.getRecentTasks(3, ActivityManager.RECENT_IGNORE_UNAVAILABLE);// 最近使用过的app在list最前面
 
-				ActivityManager.RecentTaskInfo info = mAppList.get(1);
-				if (null == info)
-					Toast.makeText(FloatButtonService.this, "No other apps", Toast.LENGTH_SHORT).show();
-				else
-					startActivity(info.baseIntent);
+				if (mAppList.size() > 2) {
+					ActivityManager.RecentTaskInfo info = mAppList.get(1);
+					if (null == info)
+						Toast.makeText(FloatButtonService.this, "No other apps", Toast.LENGTH_SHORT).show();
+					else
+						startActivity(info.baseIntent);
+				}
 			}
 		});
+		*/
 	}
 }

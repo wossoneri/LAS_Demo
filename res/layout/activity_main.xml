@@ -16,6 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:text="LAS Demo Floater Show"
             android:textColor="#ffffff"
             android:textSize="30sp" />
@@ -48,7 +49,7 @@
 
             <LinearLayout
                 android:id="@+id/layout"
-                android:layout_width="400dp"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:orientation="vertical" >
