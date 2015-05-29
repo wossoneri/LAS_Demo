@@ -94,11 +94,11 @@ public class FloatButtonService extends Service {
 		
 		
 		// 调整悬浮窗显示的停靠位置为中间
-		wmParams.gravity = Gravity.START | Gravity.TOP;
+//		wmParams.gravity = Gravity.START | Gravity.TOP;
 
 		// 以屏幕左上角为原点，设置x、y初始值
-		wmParams.x = 0;
-		wmParams.y = 0;
+		wmParams.x = 200;
+		wmParams.y = 200;
 
 
 		// 设置悬浮窗口长宽数据
