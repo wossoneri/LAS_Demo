@@ -81,7 +81,7 @@ if (null == info)
 else
 	startActivity(info.baseIntent);
 ```
-
+可以参考http://www.cnblogs.com/JohnTsai/p/4550144.html 去掉Activity切换的动画
 基本功能完成后就可以按照LAS的设置来一一添加其他功能
 
 
