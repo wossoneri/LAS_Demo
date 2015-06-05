@@ -72,6 +72,17 @@ android:excludeFromRecents="true"
 ###任务间的切换 unfinished
 将自身Activity从最近任务列表中删除后，我们就可以考虑获取最后两次的任务，然后互相一键切换了。
 在浮动按钮的单击事件中添加
+首先需要获得ActivityManager的对象
+```java
+ActivityManager mActivityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+```
+要获取任务还需要对应权限
+```xml
+<uses-permission android:name="android.permission.GET_TASKS"/>
+```
+取消切换动画
+
+
 ```java
 mAppList = mActivityManager.getRecentTasks(3, ActivityManager.RECENT_IGNORE_UNAVAILABLE);// 最近使用过的app在list最前面
 

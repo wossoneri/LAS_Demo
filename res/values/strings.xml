@@ -4,5 +4,15 @@
     <string name="app_name">LAS_Demo</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="func_floater_show">LAS Demo Floater Show</string>
+    <string name="func_run_at_boot_up">The button starts automatically when device boots up.</string>
+    <string name="func_status_bar_overlay">The button will overlay the status bar, if switched ON.</string>
+    <string name="func_snap_to_edge">The button automatically snaps to the nearest edge of the screen.</string>
+    <string name="func_exclude_home">Home screen application is excluded from last app stack.</string>
+
+    <color name="title_bg_red">#eeeeee</color>
+    <color name="main_bg_light_gray">#ff5264</color>
+    <color name="white">#ffffff</color>
+    <color name="text_item_color">#bcbcbc</color>
 
 </resources>

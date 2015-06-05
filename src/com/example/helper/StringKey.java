@@ -10,4 +10,6 @@ public class StringKey {
 	
 	public final static String StatusBarOverlay	= "LASD_STATUS_BAR_OVERLAY";
 	
+	public final static String ExcludeHome		= "LASD_EXCLUDE_HOME";
+	
 }

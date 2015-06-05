@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
 	private CheckSwitchButton mBtnRunAtStartup;
 	private CheckSwitchButton mBtnStatusbarOverlay;
 	private CheckSwitchButton mBtnSnapToEdge;
+	private CheckSwitchButton mBtnExcludeHome;
 	private LinearLayout layout;
 
 	private Intent intent;
@@ -58,6 +59,7 @@ public class MainActivity extends Activity {
 			editor.putBoolean(StringKey.RunAtStart, false);
 			editor.putBoolean(StringKey.SnapToEdge, true);
 			editor.putBoolean(StringKey.StatusBarOverlay, false);
+			editor.putBoolean(StringKey.ExcludeHome, true);
 
 			editor.commit();
 		}
@@ -70,6 +72,7 @@ public class MainActivity extends Activity {
 		mBtnRunAtStartup = (CheckSwitchButton) findViewById(R.id.btn_run_at_startup);
 		mBtnStatusbarOverlay = (CheckSwitchButton) findViewById(R.id.btn_statusbar_overlay);
 		mBtnSnapToEdge = (CheckSwitchButton) findViewById(R.id.btn_snap_to_edge);
+		mBtnExcludeHome = (CheckSwitchButton) findViewById(R.id.btn_exclude_home);
 
 //		 if (isServiceRunning("com.example.las_demo.FloatButtonService"))
 		if (sp.getBoolean(StringKey.FloaterShow, false))
@@ -91,6 +94,11 @@ public class MainActivity extends Activity {
 			mBtnStatusbarOverlay.setChecked(true);
 		else
 			mBtnStatusbarOverlay.setChecked(false);
+		
+		if (sp.getBoolean(StringKey.ExcludeHome, false))
+			mBtnExcludeHome.setChecked(true);
+		else
+			mBtnExcludeHome.setChecked(false);
 	}
 
 	private void initEvent() {
@@ -148,6 +156,18 @@ public class MainActivity extends Activity {
 					editBoolKey(StringKey.SnapToEdge, false);
 				stopService(intent);
 				startService(intent);
+			}
+		});
+		
+		mBtnExcludeHome.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if (isChecked)
+					editBoolKey(StringKey.ExcludeHome, true);
+				else
+					editBoolKey(StringKey.ExcludeHome, false);
 			}
 		});
 	}
