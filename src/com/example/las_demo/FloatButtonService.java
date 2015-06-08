@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
@@ -31,11 +30,10 @@ public class FloatButtonService extends Service {
 
 	public static String LOG = "LAS_DEMO";
 	private final String HOME_PACKAGE = "com.android.launcher";
-	private final float INGORE_TOUCH_MOVE = 5.0f; // 触摸移动小于3，可以忽略
-	// 定义浮动窗口布局
+	private final float INGORE_TOUCH_MOVE = 5.0f; 
+
 	private LinearLayout				mFloatLayout;
 	private WindowManager.LayoutParams	wmParams;
-	// 创建浮动窗口设置布局参数的对象
 	private WindowManager				mWindowManager;
 	private Button						mBtn;
 
@@ -84,22 +82,16 @@ public class FloatButtonService extends Service {
 	private void createFloatView() {
 		wmParams = new WindowManager.LayoutParams();
 		getApplication();
-		// 获取WindowManagerImpl.CompatModeWrapper 其实就是window manager对象
 		mWindowManager = (WindowManager) getApplication().getSystemService(Context.WINDOW_SERVICE);
 
 		wmParams.type = LayoutParams.TYPE_SYSTEM_ERROR;
-		// 设置图片格式，效果为背景透明
+
 		wmParams.format = PixelFormat.TRANSLUCENT;
 		
 		if(sp.getBoolean(StringKey.StatusBarOverlay, false))
 			wmParams.flags =LayoutParams.FLAG_NOT_TOUCH_MODAL | LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 		else
-		// 设置浮动窗口不可聚焦（实现操作除浮动窗口外的其他可见窗口的操作）
 			wmParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
-		
-		
-		
-		
 		// set float window gravity to screen
 		wmParams.gravity = Gravity.START | Gravity.TOP;
 
@@ -107,23 +99,21 @@ public class FloatButtonService extends Service {
 		wmParams.x = 30;
 		wmParams.y = 20;
 
-
-		// 设置悬浮窗口长宽数据
 		wmParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
 		wmParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
 		LayoutInflater inflater = LayoutInflater.from(getApplication());
-		// 获取浮动窗口视图所在布局
+		
 		mFloatLayout = (LinearLayout) inflater.inflate(R.layout.float_layout, null);
-		// 添加mFloatLayout
+		
 		mWindowManager.addView(mFloatLayout, wmParams);
 
-		// 浮动窗口按钮
+		
 		mBtn = (Button) mFloatLayout.findViewById(R.id.btn_Float);
 
 		mFloatLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
 				View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-		// 设置监听浮动窗口的触摸移动
+		
 		mBtn.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -138,10 +128,10 @@ public class FloatButtonService extends Service {
 				
 				case MotionEvent.ACTION_MOVE:
 					if (Math.abs(mLastTouchPoint.x - event.getX()) > INGORE_TOUCH_MOVE || Math.abs(mLastTouchPoint.y - event.getY()) > INGORE_TOUCH_MOVE) {
-						// getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
+						// getRawX is offset to screen，getX is offset to button
 						wmParams.x = (int) event.getRawX() - mBtn.getMeasuredWidth() / 2;
 						wmParams.y = (int) event.getRawY() - mBtn.getMeasuredHeight() / 2 - 25;
-						// 刷新
+						// refresh
 						mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 					}
 					break;
@@ -154,12 +144,14 @@ public class FloatButtonService extends Service {
 							else
 								wmParams.x = 0;
 						}
-						// 刷新
+						// refresh view
 						mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 					}else{ // click
 						mAppList = mActivityManager.getRecentTasks(3, ActivityManager.RECENT_IGNORE_UNAVAILABLE);// 最近使用过的app在list最前面
-
-						if (mAppList.size() > 2) {
+						
+						if(mAppList.size() <= 1){
+							Toast.makeText(FloatButtonService.this, "Open 2 apps,then try again", Toast.LENGTH_SHORT).show();;
+						} else if (mAppList.size() > 2) {
 							for(int i = 0; i< mAppList.size(); i++){
 								Log.v(LOG, "~~~~~~~~~~~~~~ComponentName" + i + ":  " + mAppList.get(i).baseIntent.getComponent().toString());
 								Log.v(LOG, "~~~~~~~~~~~~~~ClassName" + i + ":      " + mAppList.get(i).baseIntent.getComponent().getClassName());
@@ -179,15 +171,6 @@ public class FloatButtonService extends Service {
 			}
 		});
 
-//		mBtn.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//
-//				
-//			}
-//		});
 	}
 
 	private void getAndStartIntent(int i){
@@ -197,6 +180,8 @@ public class FloatButtonService extends Service {
 		else if(sp.getBoolean(StringKey.ExcludeHome, false)){ // if set true, do follow func
 			if(info.baseIntent.getComponent().getPackageName().equals(HOME_PACKAGE))	//exclude HOME
 				getAndStartIntent(2);
+			else
+				startActivityWithoutAnimation(info);
 		}else
 			startActivityWithoutAnimation(info);
 	}

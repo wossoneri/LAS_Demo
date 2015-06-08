@@ -9,14 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager.LayoutParams;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
 
 import com.example.helper.SizeHelper;
 import com.example.helper.StringKey;
@@ -30,7 +28,6 @@ public class MainActivity extends Activity {
 	private CheckSwitchButton mBtnStatusbarOverlay;
 	private CheckSwitchButton mBtnSnapToEdge;
 	private CheckSwitchButton mBtnExcludeHome;
-	private LinearLayout layout;
 
 	private Intent intent;
 	
@@ -52,10 +49,14 @@ public class MainActivity extends Activity {
 	private void initPreferences() {
 		sp = getSharedPreferences("las_demo", Context.MODE_PRIVATE);
 
-		if (!sp.contains("las_demo")) { // check whether there exists
-										// las_demo.xml, if false, create one
+//		if (!sp.contains("las_demo")) { // check whether there exists
+//										// las_demo.xml, if false, create one
+		if(!sp.getBoolean(StringKey.FirstCreate, true)){
+			
+			Log.v("LAS_DEMO", "create sp !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			Editor editor = sp.edit();
 //			editor.putBoolean(StringKey.FloaterShow, false);
+			editor.putBoolean(StringKey.FirstCreate, true);
 			editor.putBoolean(StringKey.RunAtStart, false);
 			editor.putBoolean(StringKey.SnapToEdge, true);
 			editor.putBoolean(StringKey.StatusBarOverlay, false);
@@ -74,7 +75,7 @@ public class MainActivity extends Activity {
 		mBtnSnapToEdge = (CheckSwitchButton) findViewById(R.id.btn_snap_to_edge);
 		mBtnExcludeHome = (CheckSwitchButton) findViewById(R.id.btn_exclude_home);
 
-//		 if (isServiceRunning("com.example.las_demo.FloatButtonService"))
+//		if (isServiceRunning("com.example.las_demo.FloatButtonService"))
 		if (sp.getBoolean(StringKey.FloaterShow, false))
 			mBtnFloaterShow.setChecked(true);
 		else

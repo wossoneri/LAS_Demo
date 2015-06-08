@@ -1,6 +1,8 @@
 package com.example.helper;
 
 public class StringKey {
+	
+	public final static String FirstCreate		= "LASD_FIRST_CREATE";
 
 	public final static String FloaterShow		= "LASD_FLOATER_SHOW";
 	

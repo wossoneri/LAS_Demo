@@ -16,7 +16,7 @@ public class BootReceiver extends BroadcastReceiver {
 			
 			SharedPreferences sp = context.getSharedPreferences("las_demo", Context.MODE_PRIVATE);
 			
-			if(sp.getBoolean(StringKey.RunAtStart, false)){	//if get true, so we can start service
+			if(sp.getBoolean(StringKey.RunAtStart, false)){	//if get true, we can start service
 				Intent a = new Intent(context, FloatButtonService.class);
 				context.startService(a);
 			}
